@@ -8,4 +8,5 @@ In production, the model could flag potentially inflammatory comments and/or use
 
 Alternatively, this could provide a public label. A user's avatar color could change, or have letters superimposed on it, in response to the model predicting hateful speech. A user could have an indication of hating women, for example, and other users of the site could easily identify this user as hating women, and choose to weight the hateful user's comments accordingly. This would require less human moderation, but may have unintended consequences, such as hateful users find each other via their hateful labels.
 
-
+### Data Source
+The primary data source for this project is the May 2015 reddit corpus available from [kaggle.com](https://www.kaggle.com/c/reddit-comments-may-2015/data).
