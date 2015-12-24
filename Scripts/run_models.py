@@ -4,7 +4,7 @@ import cPickle as pickle
 from sklearn.feature_extraction.text import TfidfVectorizer, HashingVectorizer, CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.multiclass import OneVsRestClassifier
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import label_binarize
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import roc_auc_score, roc_curve, classification_report
@@ -13,6 +13,7 @@ from nltk.stem.snowball import SnowballStemmer
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 stemmer = SnowballStemmer("english")
 
@@ -21,7 +22,7 @@ def load_data(filename = '../Data/labeledhate_5cats.p'):
     '''
     Load data into a data frame for use in running model
     '''
-    return pickle.load(open('../Data/labeledhate_5cats.p', 'rb'))
+    return pickle.load(open(filename, 'rb'))
 
 def splitdata(df, test_size=0.3):
     '''
@@ -152,26 +153,32 @@ if __name__ == '__main__':
     df = load_data()
     X_train, X_test, y_train, y_test = splitdata(df)
 
+
     ####
     print('Vectorizing, Count Vectorizer, No tokens')
     vectfit_X_train, vectfit_X_test = vectorizer()
 
+    # vectfit_X_train = vectfit_X_train.toarray()
+    # vectfit_X_test = vectfit_X_test.toarray()
+
     print('Classifying')
     print('For MultinomialNB, Count Vect, not tokenized')
-    classifier =  OneVsRestClassifier(MultinomialNB(), n_jobs=-1)
-    y_score = classifier.fit(vectfit_X_train.toarray(), y_train).predict_proba(vectfit_X_test.toarray())
-    y_preds = classifier.fit(vectfit_X_train.toarray(), y_train).predict(vectfit_X_test.toarray())
+    classifier =  OneVsRestClassifier(MultinomialNB(), n_jobs=1)
+    y_score = classifier.fit(vectfit_X_train, y_train).predict_proba(vectfit_X_test)
+    y_preds = classifier.fit(vectfit_X_train, y_train).predict(vectfit_X_test)
 
     createmulticlassROC(classes, y_test, y_score)
+    plt.savefig('MultinomialNB, CountV, Not Tokenized')
     print_scores(y_test, y_score, y_preds)
 
     print('Classifying')
-    print('For GradientBoostingClassifier, Count Vect, not tokenized')
-    classifier =  OneVsRestClassifier(GradientBoostingClassifier(max_features=2000, random_state=42)
-                                        , n_jobs=-1)
-    y_score = classifier.fit(vectfit_X_train.toarray(), y_train).predict_proba(vectfit_X_test.toarray())
-    y_preds = classifier.fit(vectfit_X_train.toarray(), y_train).predict(vectfit_X_test.toarray())
+    print('For RandomForestClassifier, Count Vect, not tokenized')
+    classifier =  OneVsRestClassifier(RandomForestClassifier(max_features=2000, random_state=42)
+                                        , n_jobs=1)
+    y_score = classifier.fit(vectfit_X_train, y_train).predict_proba(vectfit_X_test)
+    y_preds = classifier.fit(vectfit_X_train, y_train).predict(vectfit_X_test)
     createmulticlassROC(classes, y_test, y_score)
+    plt.savefig('RandomForesting_CountV_NotTokenized')
     print_scores(y_test, y_score, y_preds)
 
 
@@ -181,20 +188,22 @@ if __name__ == '__main__':
 
     print('Classifying')
     print('For MultinomialNB, Count Vect/tokenized')
-    classifier =  OneVsRestClassifier(MultinomialNB(), n_jobs=-1)
-    y_score = classifier.fit(vectfit_X_train.toarray(), y_train).predict_proba(vectfit_X_test.toarray())
-    y_preds = classifier.fit(vectfit_X_train.toarray(), y_train).predict(vectfit_X_test.toarray())
-
+    classifier =  OneVsRestClassifier(MultinomialNB(), n_jobs=1)
+    y_score = classifier.fit(vectfit_X_train, y_train).predict_proba(vectfit_X_test)
+    y_preds = classifier.fit(vectfit_X_train, y_train).predict(vectfit_X_test)
     createmulticlassROC(classes, y_test, y_score)
+    plt.savefig('MultinomialNB_CountV_Tokenized')
     print_scores(y_test, y_score, y_preds)
 
+
     print('Classifying')
-    print('For GradientBoostingClassifier, Count Vect / tokenized')
-    classifier =  OneVsRestClassifier(GradientBoostingClassifier(max_features=2000, random_state=42)
-                                        , n_jobs=-1)
-    y_score = classifier.fit(vectfit_X_train.toarray(), y_train).predict_proba(vectfit_X_test.toarray())
-    y_preds = classifier.fit(vectfit_X_train.toarray(), y_train).predict(vectfit_X_test.toarray())
+    print('For RandomForestClassifier, Count Vect / tokenized')
+    classifier =  OneVsRestClassifier(RandomForestClassifier(max_features=2000, random_state=42)
+                                        , n_jobs=1)
+    y_score = classifier.fit(vectfit_X_train, y_train).predict_proba(vectfit_X_test)
+    y_preds = classifier.fit(vectfit_X_train, y_train).predict(vectfit_X_test)
     createmulticlassROC(classes, y_test, y_score)
+    plt.savefig("RandomForesting_CountV_Tokenized")
     print_scores(y_test, y_score, y_preds)
 
     ####
@@ -202,12 +211,13 @@ if __name__ == '__main__':
     vectfit_X_train, vectfit_X_test = vectorizer(vectchoice ='Tfidf')
 
     print('Classifying')
-    print('For GradientBoostingClassifier, Tfidf, no tokens')
-    classifier =  OneVsRestClassifier(GradientBoostingClassifier(max_features=2000, random_state=42)
-                                        , n_jobs=-1)
-    y_score = classifier.fit(vectfit_X_train.toarray(), y_train).predict_proba(vectfit_X_test.toarray())
-    y_preds = classifier.fit(vectfit_X_train.toarray(), y_train).predict(vectfit_X_test.toarray())
+    print('For RandomForestClassifier, Tfidf, no tokens')
+    classifier =  OneVsRestClassifier(RandomForestClassifier(max_features=2000, random_state=42)
+                                        , n_jobs=1)
+    y_score = classifier.fit(vectfit_X_train, y_train).predict_proba(vectfit_X_test)
+    y_preds = classifier.fit(vectfit_X_train, y_train).predict(vectfit_X_test)
     createmulticlassROC(classes, y_test, y_score)
+    plt.savefig("RandomForest_tfidf_notokens")
     print_scores(y_test, y_score, y_preds)
 
     ####
@@ -215,10 +225,11 @@ if __name__ == '__main__':
     vectfit_X_train, vectfit_X_test = vectorizer(vectchoice ='Tfidf', tokenize_me=tokenize)
 
     print('Classifying')
-    print('For GradientBoostingClassifier, Tfidf, tokenized')
-    classifier =  OneVsRestClassifier(GradientBoostingClassifier(max_features=2000, random_state=42)
-                                        , n_jobs=-1)
-    y_score = classifier.fit(vectfit_X_train.toarray(), y_train).predict_proba(vectfit_X_test.toarray())
-    y_preds = classifier.fit(vectfit_X_train.toarray(), y_train).predict(vectfit_X_test.toarray())
+    print('For RandomForestClassifier, Tfidf, tokenized')
+    classifier =  OneVsRestClassifier(RandomForestClassifier(max_features=2000, random_state=42)
+                                        , n_jobs=1)
+    y_score = classifier.fit(vectfit_X_train, y_train).predict_proba(vectfit_X_test)
+    y_preds = classifier.fit(vectfit_X_train, y_train).predict(vectfit_X_test)
     createmulticlassROC(classes, y_test, y_score)
+    plt.savefig("RandomForest_tfidf_tokens")
     print_scores(y_test, y_score, y_preds)
