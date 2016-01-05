@@ -32,6 +32,18 @@ def separate_data(df):
     return [NotHateComments.body, SizeHateComments.body, GenderHateComments.body,
             ReligionHateComments.body, RaceHateComments.body, AllComments]
 
+def separate_data_hate_or_not(df):
+    '''
+    Extract comments only into Hate & Not Hate
+    Word2Vec does not need labels.
+    '''
+    
+    NotHateComments = df[df.label=='NotHate']
+    HateComments = df[df.label!='NotHate']
+    
+    return [NotHateComments.body, HateComments.body]
+
+
 def comment2sentence(comment):
     '''
     Convert comments to sentences & split into list of sentences
@@ -79,37 +91,46 @@ if __name__ == '__main__':
     df = load_data()
 
     print('Separating Comments')
-    NotHateComments, SizeHateComments, GenderHateComments, ReligionHateComments,\
-    RaceHateComments, AllComments = separate_data(df)
+    NotHateComments, HateComments = separate_data_hate_or_not(df)
+    
+    print('Running HateModel')
+    HatePreparedComments = prepare_comments(HateComments)
+    HateModel = Word2Vec(HatePreparedComments, size=200, workers=3)
+    HateModel.save('../Data/word2vecmodels/HateModel.model')    
+            
+            
+#     print('Separating Comments')
+#     NotHateComments, SizeHateComments, GenderHateComments, ReligionHateComments,\
+#     RaceHateComments, AllComments = separate_data(df)
 
-    print('Running SizeHateModel')
-    SizeHatePreparedComments = prepare_comments(SizeHateComments)
-    SizeHateModel = Word2Vec(SizeHatePreparedComments, size=200, workers=3)
-    SizeHateModel.save('../Data/word2vecmodels/SizeHateModel.model')
-    # SizeHateModel=Word2Vec.load('../Data/word2vecmodels/SizeHateModel.model')
+#     print('Running SizeHateModel')
+#     SizeHatePreparedComments = prepare_comments(SizeHateComments)
+#     SizeHateModel = Word2Vec(SizeHatePreparedComments, size=200, workers=3)
+#     SizeHateModel.save('../Data/word2vecmodels/SizeHateModel.model')
+#     # SizeHateModel=Word2Vec.load('../Data/word2vecmodels/SizeHateModel.model')
 
-    print('Running NotHateModel')
-    NotHatePreparedComments = prepare_comments(NotHateComments)
-    NotHateModel = Word2Vec(NotHatePreparedComments, size=200, workers=3)
-    NotHateModel.save('../Data/word2vecmodels/NotHateModel.model')
+#     print('Running NotHateModel')
+#     NotHatePreparedComments = prepare_comments(NotHateComments)
+#     NotHateModel = Word2Vec(NotHatePreparedComments, size=200, workers=3)
+#     NotHateModel.save('../Data/word2vecmodels/NotHateModel.model')
 
-    print('Running GenderHateModel')
-    GenderHatePreparedComments = prepare_comments(GenderHateComments)
-    GenderHateModel = Word2Vec(GenderHatePreparedComments, size=200, workers=3)
-    GenderHateModel.save('../Data/word2vecmodels/GenderHateModel.model')
+#     print('Running GenderHateModel')
+#     GenderHatePreparedComments = prepare_comments(GenderHateComments)
+#     GenderHateModel = Word2Vec(GenderHatePreparedComments, size=200, workers=3)
+#     GenderHateModel.save('../Data/word2vecmodels/GenderHateModel.model')
 
-    print('Running ReligionHateModel')
-    ReligionHatePreparedComments = prepare_comments(ReligionHateComments)
-    ReligionHateModel = Word2Vec(ReligionHatePreparedComments, size=200, workers=3)
-    ReligionHateModel.save('../Data/word2vecmodels/ReligionHateModel.model')
+#     print('Running ReligionHateModel')
+#     ReligionHatePreparedComments = prepare_comments(ReligionHateComments)
+#     ReligionHateModel = Word2Vec(ReligionHatePreparedComments, size=200, workers=3)
+#     ReligionHateModel.save('../Data/word2vecmodels/ReligionHateModel.model')
 
-    print('Running RaceHateModel')
-    RaceHatePreparedComments = prepare_comments(RaceHateComments)
-    RaceHateModel = Word2Vec(RaceHatePreparedComments, size=200, workers=3)
-    RaceHateModel.save('../Data/word2vecmodels/RaceHateModel.model')
+#     print('Running RaceHateModel')
+#     RaceHatePreparedComments = prepare_comments(RaceHateComments)
+#     RaceHateModel = Word2Vec(RaceHatePreparedComments, size=200, workers=3)
+#     RaceHateModel.save('../Data/word2vecmodels/RaceHateModel.model')
 
-    #All comments
-    print('Running AllCommentsModel')
-    AllCommentsPreparedComments = prepare_comments(AllComments)
-    AllCommentsModel = Word2Vec(AllCommentsPreparedComments, size=300, workers=3)
-    AllCommentsModel.save('../Data/word2vecmodels/AllCommentsModel.model')
+#     #All comments
+#     print('Running AllCommentsModel')
+#     AllCommentsPreparedComments = prepare_comments(AllComments)
+#     AllCommentsModel = Word2Vec(AllCommentsPreparedComments, size=300, workers=3)
+#     AllCommentsModel.save('../Data/word2vecmodels/AllCommentsModel.model')

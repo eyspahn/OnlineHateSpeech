@@ -2,19 +2,23 @@
 
 import cPickle as pickle
 from sklearn.feature_extraction.text import TfidfVectorizer, HashingVectorizer, CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.multiclass import OneVsRestClassifier
-# from sklearn.ensemble import RandomForestClassifier
+
+import xgboost as xgb
+
 from sklearn.preprocessing import label_binarize
 from sklearn.cross_validation import train_test_split
-from sklearn.metrics import roc_auc_score, roc_curve, classification_report
+
+from sklearn.metrics import roc_auc_score, roc_curve, classification_report, auc
+
 from nltk import word_tokenize
 from nltk.stem import snowball, porter, wordnet
-
+#SnowballStemmer, porter.PorterStemmer, wordnet.WordNetLemmatizer
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
+
 
 
 def load_data(filename = '../Data/labeledhate_5cats.p'):
@@ -23,15 +27,19 @@ def load_data(filename = '../Data/labeledhate_5cats.p'):
     '''
     return pickle.load(open(filename, 'rb'))
 
-def splitdata(df, test_size=0.3):
+def splitdata(df, classes, test_size=0.3):
     '''
     Split data into test & train; binarizes y into 5 classes
     Outputs: X_train, X_test, y_train, y_test
     '''
     X = df.body
     y = df.label
-    ybin = label_binarize(y, classes=['NotHate', 'SizeHate', 'GenderHate', 'RaceHate', 'ReligionHate'])
-    return train_test_split(X, ybin, test_size=test_size, random_state=42)
+
+    #relabel y labels to reflect integers [0-4] for xgboost
+    for ind in range(len(classes)):
+        y[(y==classes[ind])] = int(ind)
+
+    return train_test_split(X, y, test_size=test_size, random_state=42)
 
 
 def stem_tokens(tokens, stemmer):
@@ -46,14 +54,12 @@ def tokenize(text):
     return stems
 
 
-
 def vectorizer(vectchoice = 'Count', stopwords = 'english', tokenize_me = None, max_features=5000):
     '''
     Choose/return sklearn vectorizer, from Count Vectorizer, TFIDF, HashingVectorizer
     Choose from: stopwords: ['english' or 'None'],
-                vectorizer = [Count, Hash or Tfidf]
+                vectorizer = ['Count', 'Hash' or 'Tfidf']
                 tokenize_me: [None or tokenize]
-
     '''
 
     if vectchoice == 'Count':
@@ -81,7 +87,7 @@ def vectorizer(vectchoice = 'Count', stopwords = 'english', tokenize_me = None, 
 
     elif vectchoice == 'Tfidf':
         vect = TfidfVectorizer(stop_words=stopwords, decode_error='ignore',
-                                tokenizer = tokenize_me, max_features=max_features)
+                                tokenizer = tokenize_me,max_features=max_features)
 
 
     # class sklearn.feature_extraction.text.TfidfVectorizer(input='content', encoding='utf-8',
@@ -102,10 +108,26 @@ def vectorizer(vectchoice = 'Count', stopwords = 'english', tokenize_me = None, 
 def print_scores(y_test, y_score, y_preds):
     '''
     Print model performance stats.
-    y_test: test labels; y_score: probabilities; y_preds: predictions
+    y_test: test labels (sklearn format); y_score: probabilities; y_preds: predictions
     '''
     print("ROC AUC Score: {0}".format(roc_auc_score(y_test, y_score)))
-    print(classification_report(y_test, y_preds))
+    # print("Classification report: {0}".format(classification_report(y_test, y_preds)))
+
+def top_features(d, n=20):
+    '''
+    Function to show the top n important features & their scores.
+    The get_fscore method in xgboost returns a dictionary of features & a number.
+    Get the top n features with the highest scores
+
+    d is a dictionary (from get_fscore method in xgboost)
+    '''
+
+    featureslist = []
+
+    for k, v in sorted(d.iteritems(), reverse=True, key=lambda (k,v): (v,k)):
+        featureslist.append((k,v))
+
+    return featureslist[:n]
 
 
 def createmulticlassROC(classes, y_test, y_score):
@@ -113,14 +135,14 @@ def createmulticlassROC(classes, y_test, y_score):
     Function to create & plot ROC curve & associated areas
     Adapted from http://scikit-learn.org/stable/auto_examples/model_selection/plot_roc.html
 
-    Inputs: n_classes: the number of classes
-            y_test: the test labels
+    Inputs: classes: a list of classes
+            y_test: the test labels, binarized into columns
             y_score: the predicted probabilities for each class.
                 (e.g. y_score = classifier.fit(countv_fit_X_train, y_train).predict_proba(countv_fit_X_test) )
     '''
-    n_classes = len(classes)
 
     # Compute ROC curve and ROC area for each class
+    n_classes = len(classes)
     fpr = dict()
     tpr = dict()
     roc_auc = dict()
@@ -149,33 +171,64 @@ if __name__ == '__main__':
     #main()
     classes = ['NotHate', 'SizeHate', 'GenderHate', 'RaceHate', 'ReligionHate']
 
-    print('Loading Data')
+    print("Loading Data")
     df = load_data()
-    print('Splitting Data')
-    X_train, X_test, y_train, y_test = splitdata(df)
+    print("Splitting Data")
+    X_train, X_test, y_train, y_test = splitdata(df, classes)
 
-    #loop through options & print out scores
-    #vect_options = ['Count', 'Hash', 'Tfidf']
-    stemmer_options = [snowball.SnowballStemmer("english")]
-    # stemmer_options = [snowball.SnowballStemmer("english"), porter.PorterStemmer()]
-    #token_options = [None, tokenize]
-    vect_options = ['Tfidf']
-    # stemmer_options = [snowball.SnowballStemmer("english")]
+    #relabel the output for multiclass roc plot, score
+    ylabel_bin = label_binarize(y_test.astype(int), classes=[0,1,2,3,4],sparse_output=False)
+
+    ### Loop through # max_features? --> Use 5000 as a starting point, at least for now. ###
+    ### Use english stop words
+    ### Loop Through Vectorizer, stemmer/tokenizing ###
+    vect_options = ['Count', 'Hash', 'Tfidf']
+    # vect_options = ['Hash']
+
+    stemmer_options = [snowball.SnowballStemmer("english"), porter.PorterStemmer()]
+    #Note - wordnet.WordNetLemmatizer() has no .stem option & doesn't fit the format of this code.
+
+    # token_options = [None, tokenize]
     token_options = [tokenize]
+
 
     for token in token_options:
         for stemmer in stemmer_options:
             for vect in vect_options:
                 print('For vect {0}, stemmer {1} & token {2}'.format(vect, stemmer, token))
-                vectfit_X_train, vectfit_X_test = vectorizer(vectchoice = vect, tokenize_me=token,
-                                stopwords='english')
+                print('Vectorizing')
+                vectfit_X_train, vectfit_X_test = vectorizer(vectchoice = vect,
+                            stopwords = 'english', tokenize_me = token)
                 print('Classifying')
-                classifier =  OneVsRestClassifier(MultinomialNB(), n_jobs=1)
-                fitted_clf = classifier.fit(vectfit_X_train, y_train)
-                print('Predicting')
-                y_score = fitted_clf.predict_proba(vectfit_X_test)
-                y_preds = fitted_clf.predict(vectfit_X_test)
+                xg_train = xgb.DMatrix(vectfit_X_train, label=y_train)
+                xg_test = xgb.DMatrix(vectfit_X_test, label=y_test)
+                # Set up xboost parameters
+                param = {}
+                # use softmax multi-class classification
+                # param['objective'] = 'multi:softmax'
+                # scale weight of positive examples
+                param['eta'] = 0.9
+                param['max_depth'] = 6
+                param['silent'] = 1
+                param['nthread'] = 4
+                param['num_class'] = 5
 
-                # createmulticlassROC(classes, y_test, y_score)
-                # plt.savefig('MultinomialNB, CountV, Not Tokenized')
-                print_scores(y_test, y_score, y_preds)
+                watchlist = [ (xg_train, 'train'), (xg_test, 'test') ]
+                num_round = 5
+                # bst = xgb.train(param, xg_train, num_round, watchlist )
+                param['objective'] = 'multi:softprob'
+                bst = xgb.train(param, xg_train, num_round, watchlist );
+                # get prediction, this is in 1D array, need reshape to (ndata, nclass)
+                yprob = bst.predict(xg_test).reshape(y_test.shape[0], 5)
+                ylabel = np.argmax(yprob, axis=1)
+
+                print('predicting, classification error=%f' % (sum( int(ylabel[i]) != y_test.iloc[i] for i in range(len(y_test))) / float(len(y_test)) ))
+                #createmulticlassROC(classes, ylabel_bin, yprob)
+                print("ROC AUC Score: {0}".format(roc_auc_score(ylabel_bin, yprob)))
+
+                top_features(bst.get_fscore(), n=20)
+                print(' ')
+
+
+    # createmulticlassROC(classes, y_test, y_score)
+    # plt.savefig("RandomForest_tfidf_notokens")
