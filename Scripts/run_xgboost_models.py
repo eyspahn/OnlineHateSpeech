@@ -54,7 +54,7 @@ def tokenize(text):
     return stems
 
 
-def vectorizer(vectchoice = 'Count', stopwords = 'english', tokenize_me = None, max_features=5000):
+def vectorizer(vectchoice = 'Count', stopwords = 'english', tokenize_me = None, max_features=500):
     '''
     Choose/return sklearn vectorizer, from Count Vectorizer, TFIDF, HashingVectorizer
     Choose from: stopwords: ['english' or 'None'],
@@ -151,7 +151,8 @@ def createmulticlassROC(classes, y_test, y_score):
         roc_auc[i] = auc(fpr[i], tpr[i])
 
     # Plot all ROC curves
-    plt.figure(figsize = (12,8))
+    # plt.figure(figsize = (12,8))
+    plt.figure()
 
     for i in range(n_classes):
         plt.plot(fpr[i], tpr[i], label='ROC curve of class {0} (area = {1:0.2f})'
@@ -183,13 +184,12 @@ if __name__ == '__main__':
     ### Use english stop words
     ### Loop Through Vectorizer, stemmer/tokenizing ###
     vect_options = ['Count', 'Hash', 'Tfidf']
-    # vect_options = ['Hash']
 
-    stemmer_options = [snowball.SnowballStemmer("english"), porter.PorterStemmer()]
+    stemmer_options = [snowball.SnowballStemmer("english")]
     #Note - wordnet.WordNetLemmatizer() has no .stem option & doesn't fit the format of this code.
 
-    # token_options = [None, tokenize]
-    token_options = [tokenize]
+    token_options = [None, tokenize]
+    # token_options = [tokenize]
 
 
     for token in token_options:
@@ -223,7 +223,9 @@ if __name__ == '__main__':
                 ylabel = np.argmax(yprob, axis=1)
 
                 print('predicting, classification error=%f' % (sum( int(ylabel[i]) != y_test.iloc[i] for i in range(len(y_test))) / float(len(y_test)) ))
-                #createmulticlassROC(classes, ylabel_bin, yprob)
+                plt.figure()
+                createmulticlassROC(classes, ylabel_bin, yprob)
+                plt.show()
                 print("ROC AUC Score: {0}".format(roc_auc_score(ylabel_bin, yprob)))
 
                 top_features(bst.get_fscore(), n=20)

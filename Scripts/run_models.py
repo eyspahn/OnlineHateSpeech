@@ -47,7 +47,7 @@ def tokenize(text):
 
 
 
-def vectorizer(vectchoice = 'Count', stopwords = 'english', tokenize_me = None, max_features=5000):
+def vectorizer(vectchoice = 'Count', stopwords = 'english', tokenize_me = None, max_features=500):
     '''
     Choose/return sklearn vectorizer, from Count Vectorizer, TFIDF, HashingVectorizer
     Choose from: stopwords: ['english' or 'None'],
