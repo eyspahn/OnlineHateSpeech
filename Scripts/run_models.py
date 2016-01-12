@@ -9,7 +9,7 @@ from sklearn.preprocessing import label_binarize
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import roc_auc_score, roc_curve, classification_report
 from nltk import word_tokenize
-from nltk.stem import snowball, porter, wordnet
+from nltk.stem import snowball
 
 
 import numpy as np
@@ -17,11 +17,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def load_data(filename = '../Data/labeledhate_5cats.p'):
+def load_data(filename='../Data/labeledhate_5cats.p'):
     '''
     Load data into a data frame for use in running model
     '''
     return pickle.load(open(filename, 'rb'))
+
 
 def splitdata(df, test_size=0.3):
     '''
@@ -35,10 +36,11 @@ def splitdata(df, test_size=0.3):
 
 
 def stem_tokens(tokens, stemmer):
-    stemmed=[]
+    stemmed = []
     for item in tokens:
         stemmed.append(stemmer.stem(item))
     return stemmed
+
 
 def tokenize(text):
     tokens = word_tokenize(text)
@@ -46,8 +48,7 @@ def tokenize(text):
     return stems
 
 
-
-def vectorizer(vectchoice = 'Count', stopwords = 'english', tokenize_me = None, max_features=500):
+def vectorizer(vectchoice='Count', stopwords='english', tokenize_me=None, max_features=500):
     '''
     Choose/return sklearn vectorizer, from Count Vectorizer, TFIDF, HashingVectorizer
     Choose from: stopwords: ['english' or 'None'],
@@ -58,7 +59,7 @@ def vectorizer(vectchoice = 'Count', stopwords = 'english', tokenize_me = None, 
 
     if vectchoice == 'Count':
         vect = CountVectorizer(stop_words=stopwords, decode_error='ignore',
-                                tokenizer = tokenize_me, max_features=max_features)
+                            tokenizer=tokenize_me, max_features=max_features)
 
     # class sklearn.feature_extraction.text.CountVectorizer(input='content', encoding='utf-8',
     # decode_error='strict', strip_accents=None, lowercase=True, preprocessor=None, tokenizer=None,
@@ -66,30 +67,24 @@ def vectorizer(vectchoice = 'Count', stopwords = 'english', tokenize_me = None, 
     # max_df=1.0, min_df=1, max_features=None, vocabulary=None, binary=False,
     # dtype=<class 'numpy.int64'>)[source]¶
 
-
-
     elif vectchoice == "Hash":
-        vect = HashingVectorizer(stop_words=stopwords, decode_error = 'ignore',
-                                    non_negative=True, tokenizer = tokenize_me)
+        vect = HashingVectorizer(stop_words=stopwords, decode_error='ignore',
+                                non_negative=True, tokenizer=tokenize_me)
 
     # class sklearn.feature_extraction.text.HashingVectorizer(input='content', encoding='utf-8',
     # decode_error='strict', strip_accents=None, lowercase=True, preprocessor=None, tokenizer=None,
     #  stop_words=None, token_pattern='(?u)\b\w\w+\b', ngram_range=(1, 1), analyzer='word',
     #  n_features=1048576, binary=False, norm='l2', non_negative=False, dtype=<class 'numpy.float64'>)[source]
 
-
-
     elif vectchoice == 'Tfidf':
         vect = TfidfVectorizer(stop_words=stopwords, decode_error='ignore',
-                                tokenizer = tokenize_me, max_features=max_features)
-
+                                tokenizer=tokenize_me, max_features=max_features)
 
     # class sklearn.feature_extraction.text.TfidfVectorizer(input='content', encoding='utf-8',
     # decode_error='strict', strip_accents=None, lowercase=True, preprocessor=None, tokenizer=None,
     # analyzer='word', stop_words=None, token_pattern='(?u)\b\w\w+\b', ngram_range=(1, 1),
     # max_df=1.0, min_df=1, max_features=None, vocabulary=None, binary=False, dtype=<class 'numpy.int64'>
     # , norm='l2', use_idf=True, smooth_idf=True, sublinear_tf=False)[source]¶
-
 
     # fit & transform train vector
     vectfit_train = vect.fit_transform(X_train)
@@ -129,7 +124,7 @@ def createmulticlassROC(classes, y_test, y_score):
         roc_auc[i] = auc(fpr[i], tpr[i])
 
     # Plot all ROC curves
-    plt.figure(figsize = (12,8))
+    plt.figure(figsize=(12, 8))
 
     for i in range(n_classes):
         plt.plot(fpr[i], tpr[i], label='ROC curve of class {0} (area = {1:0.2f})'
@@ -146,7 +141,7 @@ def createmulticlassROC(classes, y_test, y_score):
 
 
 if __name__ == '__main__':
-    #main()
+    # main()
     classes = ['NotHate', 'SizeHate', 'GenderHate', 'RaceHate', 'ReligionHate']
 
     print('Loading Data')
@@ -154,11 +149,11 @@ if __name__ == '__main__':
     print('Splitting Data')
     X_train, X_test, y_train, y_test = splitdata(df)
 
-    #loop through options & print out scores
-    #vect_options = ['Count', 'Hash', 'Tfidf']
+    # loop through options & print out scores
+    # vect_options = ['Count', 'Hash', 'Tfidf']
     stemmer_options = [snowball.SnowballStemmer("english")]
     # stemmer_options = [snowball.SnowballStemmer("english"), porter.PorterStemmer()]
-    #token_options = [None, tokenize]
+    # token_options = [None, tokenize]
     vect_options = ['Tfidf']
     # stemmer_options = [snowball.SnowballStemmer("english")]
     token_options = [tokenize]
@@ -167,10 +162,10 @@ if __name__ == '__main__':
         for stemmer in stemmer_options:
             for vect in vect_options:
                 print('For vect {0}, stemmer {1} & token {2}'.format(vect, stemmer, token))
-                vectfit_X_train, vectfit_X_test = vectorizer(vectchoice = vect, tokenize_me=token,
+                vectfit_X_train, vectfit_X_test = vectorizer(vectchoice=vect, tokenize_me=token,
                                 stopwords='english')
                 print('Classifying')
-                classifier =  OneVsRestClassifier(MultinomialNB(), n_jobs=1)
+                classifier = OneVsRestClassifier(MultinomialNB(), n_jobs=1)
                 fitted_clf = classifier.fit(vectfit_X_train, y_train)
                 print('Predicting')
                 y_score = fitted_clf.predict_proba(vectfit_X_test)

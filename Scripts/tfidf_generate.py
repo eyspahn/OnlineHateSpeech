@@ -18,11 +18,13 @@ def splitdata(X, y, classes, test_size=0.3):
 
     return train_test_split(X, y, test_size=test_size, random_state=42)
 
+
 def stem_tokens(tokens, stemmer):
-    stemmed=[]
+    stemmed = []
     for item in tokens:
         stemmed.append(stemmer.stem(item))
     return stemmed
+
 
 def tokenize(text):
     tokens = word_tokenize(text)
@@ -31,7 +33,7 @@ def tokenize(text):
 
 
 if __name__ == '__main__':
-    #main()
+    # main()
     classes = ['NotHate', 'SizeHate', 'GenderHate', 'RaceHate', 'ReligionHate']
     stemmer = SnowballStemmer("english")
 
@@ -42,7 +44,7 @@ if __name__ == '__main__':
     print("Splitting Data")
     X_train, X_test, y_train, y_test = splitdata(X_stripped, y, classes)
 
-    tfidfv = TfidfVectorizer(decode_error = 'ignore', stop_words = 'english',
+    tfidfv = TfidfVectorizer(decode_error='ignore', stop_words='english',
                             tokenizer=tokenize)
     tfidf_X_train = tfidfv.fit_transform(X_train)
     tfidf_X_test = tfidfv.transform(X_test)
