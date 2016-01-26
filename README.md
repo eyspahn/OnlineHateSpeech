@@ -8,7 +8,7 @@ I developed a computer model based on a subset of comments to classify text as h
 I additionally developed models to examine the relationships between words used in the hateful  and not hateful comment sets.
 
 
-Table Of Contents:
+### Table Of Contents:
 
 - [Definition & motivation](https://github.com/eyspahn/OnlineHateSpeech#definition--motivation)
 - [Results](https://github.com/eyspahn/OnlineHateSpeech#results)
@@ -82,7 +82,7 @@ I can see two potential use cases in production.
 ## Data Source
 
 The data source I used for this project was comments from [reddit]( https://www.reddit.com/). A user had scraped all the publicly available comments and published them.
-[original link](https://www.reddit.com/r/datasets/comments/3bxlg7/i_have_every_publicly_available_reddit_comment/ )
+[Original link](https://www.reddit.com/r/datasets/comments/3bxlg7/i_have_every_publicly_available_reddit_comment/ )
  Kaggle published the May 2015 reddit data in a Sqlite database available for download.  [ Kaggle link to Reddit comments ]( https://www.kaggle.com/c/reddit-comments-may-2015 ) Another reddit user had uploaded the data to Google's BigQuery, making it easy to obtain a subset of the full reddit comments data. [BigQuery Link to Reddit Comments](https://bigquery.cloud.google.com/dataset/fh-bigquery:reddit_comments)
  
 
