@@ -10,15 +10,15 @@ I additionally developed models to examine the relationships between words used 
 
 Table Of Contents:
 
-- [Definition & motivation](##Definition & Motivation)
-- [Results](## Results)
-- [Practical Application](## Practical Application)
-- [Data Source](## Data Source)
-- [Technical Details](## Technical Details)
-- [Assumptions](## Assumptions)
-- [References](## References)
-- [Resources](## Resources)
-- [Acknowledgements](## Acknowledgements)
+- [Definition & motivation](https://github.com/eyspahn/OnlineHateSpeech#definition--motivation)
+- [Results](https://github.com/eyspahn/OnlineHateSpeech#results)
+- [Practical Application](https://github.com/eyspahn/OnlineHateSpeech#practical-application)
+- [Data Source](https://github.com/eyspahn/OnlineHateSpeech#data-source)
+- [Technical Details](https://github.com/eyspahn/OnlineHateSpeech#technical-details)
+- [Assumptions](https://github.com/eyspahn/OnlineHateSpeech#assumptions)
+- [References](https://github.com/eyspahn/OnlineHateSpeech#references)
+- [Resources](https://github.com/eyspahn/OnlineHateSpeech#resources)
+- [Acknowledgements](https://github.com/eyspahn/OnlineHateSpeech#acknowledgements)
 
 
 ## Definition & Motivation
