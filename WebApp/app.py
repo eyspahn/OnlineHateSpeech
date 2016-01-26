@@ -48,7 +48,7 @@ def techdetails():
         </html>'''
 
 
-#submit page, to accept text
+# submit page, to accept text
 @app.route('/submit')
 def submit():
     return '''
@@ -60,7 +60,7 @@ def submit():
 
 #     <input type="text" name="user_input" />
 
-#predict page, to display prediction result
+# predict page, to display prediction result
 @app.route('/predict', methods = ['POST'])
 def predict():
     text = str(request.form['user_input'].encode(encoding='ascii', errors='ignore'))
@@ -83,13 +83,13 @@ def predict():
         <h4>The text you submitted: </h4>
         {2}
       </body>
-    </html>'''.format(str(pred[0]), str(int(round(max(predict_proba)*100,0))), text)
+    </html>'''.format(str(pred[0]), str(int(round(max(predict_proba) * 100, 0))), text)
 
 
 if __name__ == '__main__':
-    with open('data/vectorizer.pkl') as f:
-        vectorizer = pickle.load(f)
-    with open('data/model.pkl') as f:
-        model = pickle.load(f)
+    # with open('data/vectorizer.pkl') as f:
+    #     vectorizer = pickle.load(f)
+    # with open('data/model.pkl') as f:
+    #     model = pickle.load(f)
 
     app.run(host='0.0.0.0', port=8080, debug=True)
