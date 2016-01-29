@@ -69,13 +69,11 @@ I removed punctuation and turned the words into lowercase, but I did not stem th
 
 ## Practical Application
 
-I can see two potential use cases in production.
+I can see two potential use cases in production:
 
-	• Pre-screen comments
-	The model could run on comments after they're submitted but before they're published. It could flag potentially inflammatory comments, and prevent a hateful comment from being posting until approved by a human moderator.
+- **Pre-screen comments** The model could run on comments after they're submitted but before they're published. It could flag potentially inflammatory comments, and prevent a hateful comment from being posting until approved by a human moderator.
 
-	• Iconize a recent history of hateful comments
-	Alternatively, this could provide a public label. A user's avatar color could change, or have letters superimposed on it, in response to the model predicting hateful speech. A user could have an indication of hating women, for example, and other users of the site could easily identify this user as hating women, and choose to weight the hateful user's comments accordingly. This would require less human moderation, but may have unintended consequences, such as hateful users finding each other via their hateful labels.
+- **Iconize a recent history of hateful comments** Alternatively, this could provide a public label. A user's avatar color could change, or have letters superimposed on it, in response to the model predicting hateful speech. A user could have an indication of hating women, for example, and other users of the site could easily identify this user as hating women, and choose to weight the hateful user's comments accordingly. This would require less human moderation, but may have unintended consequences, such as hateful users finding each other via their hateful labels.
 
 
 
@@ -121,7 +119,7 @@ Table of final hateful & not hateful subreddits used:
 | Not Hate | /r/fatlogic | 54525 |
 
 
-I created a TF-IDF matrix from the May 2015 comments from the hateful and not-hateful subreddits previously identified. This was about 1.57 million comments, and resulted in a vocabulary of over 250,000 words. I lowercased letters, stripped words of punctuation, and applied a snowball stemmer during the tokenization process.
+I created a TF-IDF matrix from the May 2015 comments from the hateful and not-hateful subreddits previously identified. This was about 1.57 million comments, and resulted in a vocabulary of over 450,000 words. I lowercased letters, stripped words of punctuation, and applied a snowball stemmer during the tokenization process.
 
 I used the classification package in XGBoost to develop the final multi-class model. Initially, I ran a multinomial Naïve-Bayes model in SK-learn, which returned an average ROC AUC score of about 0.75.
 
