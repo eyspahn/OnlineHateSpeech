@@ -63,7 +63,10 @@ def main():
 
     # fit & transform comments matrix
     tfidf_X = vect.fit_transform(X)
-
+    # Save out vect & tfidf_X
+    pickle.dump(vect, open('vect.p', 'wb')
+    pickle.dump(tfidf_X, open('tfidf_X.p', 'wb')
+                
     # develop data to train model
     xg_train = xgb.DMatrix(tfidf_X, label=y)
 
@@ -83,9 +86,9 @@ def main():
     # pickling just in case
     pickle.dump(bst, open('bst.p', 'wb'))
 
-    # save model
+    #save model
     bst.save_model('hatespeech.model')
-    # dump model
+    #dump model
     bst.dump_model('dump.raw.txt', 'featmap.txt')
 
 

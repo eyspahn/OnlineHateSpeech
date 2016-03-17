@@ -13,7 +13,7 @@ from sklearn.metrics import roc_curve, auc
 import xgboost as xgb
 import cPickle as pickle
 
-from collections import punctuation
+from string import punctuation
 from nltk import word_tokenize
 from nltk.stem import snowball
 

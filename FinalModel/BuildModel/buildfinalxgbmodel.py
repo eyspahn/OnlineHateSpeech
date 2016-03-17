@@ -63,7 +63,10 @@ def main():
 
     # fit & transform comments matrix
     tfidf_X = vect.fit_transform(X)
-
+    # Save out vect & tfidf_X
+    pickle.dump(vect, open('vect.p', 'wb'))
+    pickle.dump(tfidf_X, open('tfidf_X.p', 'wb'))
+                
     # develop data to train model
     xg_train = xgb.DMatrix(tfidf_X, label=y)
 
