@@ -49,10 +49,10 @@ def main():
 
     # load saved xgboost model
     bst = xgb.Booster()
-    bst.load_model('../FinalModel/BuildModel/hatespeech.model')
+    bst.load_model('../FinalModel/modelv1/BuildModel/hatespeech.model')
     # load tf-idf matrix
     # tfidf_X = pickle.load(open('../FinalModel/BuildModel/tfidf_X.p', 'rb'))
-    vect = pickle.load(open('../FinalModel/BuildModel/vect.p', 'rb'))
+    vect = pickle.load(open('../FinalModel/modelv1/BuildModel/vect.p', 'rb'))
 
     # get comment from user
     comment = raw_input('Enter comment: ')
