@@ -1,0 +1,2 @@
+I had left off stripping punctuation originally when I generated the pickled file.
+I included it separately here.
