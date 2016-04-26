@@ -98,6 +98,11 @@ if __name__ == '__main__':
     HateModel = Word2Vec(HatePreparedComments, size=200, workers=3)
     HateModel.save('../Data/word2vecmodels/HateModel.model')
 
+#     print('Running NotHateModel')
+#     NotHatePreparedComments = prepare_comments(NotHateComments)
+#     NotHateModel = Word2Vec(NotHatePreparedComments, size=200, workers=3)
+#     NotHateModel.save('../Data/word2vecmodels/NotHateModel.model')
+
 
 #     print('Separating Comments')
 #     NotHateComments, SizeHateComments, GenderHateComments, ReligionHateComments,\
@@ -109,10 +114,7 @@ if __name__ == '__main__':
 #     SizeHateModel.save('../Data/word2vecmodels/SizeHateModel.model')
 #     # SizeHateModel=Word2Vec.load('../Data/word2vecmodels/SizeHateModel.model')
 
-#     print('Running NotHateModel')
-#     NotHatePreparedComments = prepare_comments(NotHateComments)
-#     NotHateModel = Word2Vec(NotHatePreparedComments, size=200, workers=3)
-#     NotHateModel.save('../Data/word2vecmodels/NotHateModel.model')
+
 
 #     print('Running GenderHateModel')
 #     GenderHatePreparedComments = prepare_comments(GenderHateComments)

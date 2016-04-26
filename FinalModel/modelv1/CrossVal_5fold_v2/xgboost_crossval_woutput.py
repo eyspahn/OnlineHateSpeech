@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Run cross validation on tf-idf + xgboost model'''
-
-# import pdb
+'''Run cross validation on tf-idf + xgboost model & output info on runs'''
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import defaultdict
@@ -116,7 +114,7 @@ def top_features_words(d, vect, n=20):
 
     d is a dictionary (from bst.get_fscore() in xgboost)
     vect is the instantiated vectorizer (e.g. vect = TfidfVectorizer(stuff); not the fitted variable name)
-    returns: a list of tuples - (feature number, feature score, stemmed/de-punctuated word)
+    returns: a list of tuples - feature number,
     '''
     try:
         # Back out important features
@@ -142,7 +140,7 @@ def top_features_words(d, vect, n=20):
 
 def plot_confusion_matrix(cm, classes, title='Confusion matrix', cmap=plt.cm.Blues):
     plt.figure()
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.imshow(cm, interpolation='nearest', cmap=cmap, vmin=0, vmax=15000)
     plt.title(title)
     plt.colorbar()
     tick_marks = np.arange(len(classes))
@@ -179,7 +177,7 @@ def main():
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
 
-        # relabel the output for multiclass roc plot, score
+        # relabel the output for roc auc
         y_testbin = label_binarize(y_test.astype(int),
                                    classes=[0, 1, 2, 3, 4], sparse_output=False)
 
@@ -209,16 +207,14 @@ def main():
 
         watchlist = [(xg_train, 'train'), (xg_test, 'test')]
         num_round = 500
-        evals_result_dict = {}
-        bst = xgb.train(param, xg_train, num_round, watchlist, early_stopping_rounds=5,
-                        evals_result=evals_result_dict)
+        bst = xgb.train(param, xg_train, num_round, watchlist, early_stopping_rounds=5)
 
         print('Predicting')
         # get prediction, this is in 1D array, need reshape to (ndata, nclass)
         # probabilities
         y_proba = bst.predict(xg_test).reshape(y_test.shape[0], 5)
-        # predictions
-        y_preds = np.argmax(y_proba, axis=1)
+        # prediction indicies
+        y_pred_ind = np.argmax(y_proba, axis=1)
 
         d_auc = createmulticlassROC(classes, y_testbin, y_proba, d_auc)
         plt.savefig('ROCcurves_{0}.png'.format(kfoldcount))
@@ -237,7 +233,12 @@ def main():
             f2.write(str(top_words))
 
         # Output confustion matrix
-        cm = confusion_matrix(y_testbin, y_preds, labels=classes)
+        y_test_array = np.array(y_test.astype(int))
+
+        cm = confusion_matrix(y_test_array, y_pred_ind)
+        cmfilename = 'CM_{0}.txt'.format(kfoldcount)
+        with open(cmfilename, 'w') as f3:
+            f3.write(str(cm))
         plot_confusion_matrix(cm, classes, title='Confusion matrix', cmap=plt.cm.Blues)
         plt.savefig('ConfusionMatrix_{0}'.format(kfoldcount))
 

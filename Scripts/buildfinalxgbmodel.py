@@ -66,7 +66,7 @@ def main():
     # Save out vect & tfidf_X
     pickle.dump(vect, open('vect.p', 'wb')
     pickle.dump(tfidf_X, open('tfidf_X.p', 'wb')
-                
+
     # develop data to train model
     xg_train = xgb.DMatrix(tfidf_X, label=y)
 
@@ -88,13 +88,13 @@ def main():
 
     #save model
     bst.save_model('hatespeech.model')
-    #dump model
+    # dump model
     bst.dump_model('dump.raw.txt', 'featmap.txt')
 
 
     # To load saved model:
     # bst = xgb.Booster({'nthread': 4}) #init model
-    # bst.load_model("model.bin")  <-- I think this should be "hatespeech.model"
+    # bst.load_model('hatespeech.model')  <-- I think this should be "hatespeech.model"
 
 if __name__ == '__main__':
     main()
