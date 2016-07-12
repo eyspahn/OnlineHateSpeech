@@ -3,9 +3,9 @@
 
 This project is an examination of online hate speech, using public comments from reddit.com as the data source.
 
-I developed a computer model based on a subset of comments to classify text as hate speech or not. If a comment was considered hateful, the model will return what type of hate the comment reflects, between race, gender, religion, and body size.
+[Link to slides from 4/28 presentation of project!](https://docs.google.com/presentation/d/12Wfk2dyfDdNhtCdCFBYXg5HzlsPw96mrMaxFGYEss78/edit?usp=sharing)
 
-I additionally developed models to examine the relationships between words used in the hateful  and not hateful comment sets.
+I developed a computer model to classify text as hate speech or not. If a comment was considered hateful, the model returns what type of hate the comment reflects, between race, gender, religion, and body size. I additionally developed models to examine the relationships between words used in the hateful  and not hateful comment sets. The code is not currently optimized.
 
 
 ### Table Of Contents:
